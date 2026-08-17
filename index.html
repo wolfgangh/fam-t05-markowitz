@@ -116,7 +116,6 @@
           <p class="hint" id="form-hint"></p>
           <div class="actions">
             <button type="submit">Zahlen bestätigen</button>
-            <button type="button" class="secondary" id="example">Beispielzahlen einsetzen</button>
             <button type="button" class="secondary" id="reset">Zurücksetzen</button>
           </div>
         </form>
@@ -126,9 +125,9 @@
         <h2 id="compare-title">Ihre Zahlen gegen die drei Soll-Zahlen</h2>
         <div id="verdict" class="verdict" hidden aria-live="polite"></div>
         <p id="compare-note"></p>
-        <table class="compare">
+        <table class="compare" id="compare-table">
           <thead>
-            <tr>
+            <tr id="compare-head">
               <th scope="col">Größe</th>
               <th scope="col">Ihre Zahl</th>
               <th scope="col">Soll</th>
@@ -231,7 +230,7 @@
       <section class="card hidden" id="crisis-card" aria-labelledby="crisis-title">
         <h2 id="crisis-title">Krise</h2>
         <p>
-          Das Buch ist 60 Prozent Aktien-ETF und 40 Prozent Renten-ETF. Aktien: erwartete Rendite 7,00 Prozent, Risiko 18,00 Prozent. Renten: erwartete Rendite 3,00 Prozent, Risiko 6,00 Prozent.
+          Das Buch ist 60 Prozent Aktien-ETF und 40 Prozent Renten-ETF. Aktien: Antwortete Rendite 7,00 Prozent, Risiko 18,00 Prozent. Renten: erwartete Rendite 3,00 Prozent, Risiko 6,00 Prozent.
         </p>
         <p>
           Schieben Sie die Korrelation von 0,00 bis 1,00.
