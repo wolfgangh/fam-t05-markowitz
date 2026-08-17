@@ -1,16 +1,9 @@
 import "./style.css";
 import { formatNum, formatPct, parseDeNumber } from "./format";
 import {
-  CRISIS_JUMP_PP,
-  CRISIS_MU,
   CRISIS_RHO_CALM,
-  CRISIS_RHO_STRESS,
-  CRISIS_SIG_CALM,
-  CRISIS_SIG_STRESS,
   DAX_MU,
   DAX_SIG,
-  FIFTY_MU,
-  FIFTY_SIG,
   GOLD_MU,
   GOLD_SIG,
   KIPP_MU_X_HI,
@@ -232,12 +225,12 @@ function verdictFor(v: FormValues): { ok: boolean; text: string } {
   if (daxOk && goldOk && sigOk) {
     return {
       ok: true,
-      text: "RICHTIG. Gewicht DAX 40,00 %, Gewicht Gold 60,00 %, Risiko des MVP 9,60 %. Das MVP braucht keine Renditeprognosen.",
+      text: "RICHTIG. Gewicht DAX 40,00 Prozent. Gewicht Gold 60,00 Prozent. Risiko des Minimum-Varianz-Portfolios 9,60 Prozent. Diese Mischung braucht keine Renditeprognose.",
     };
   }
   return {
     ok: false,
-    text: "FALSCH. Mindestens eine Zahl weicht ab. Soll: 40,00 %, 60,00 % und 9,60 %. Das MVP nutzt nur σ und ρ, nicht μ.",
+    text: "FALSCH. Mindestens eine Zahl weicht ab. Soll: Gewicht DAX 40,00 Prozent, Gewicht Gold 60,00 Prozent, Risiko 9,60 Prozent. Die Mischung nutzt nur Risiko und Korrelation, keine erwartete Rendite.",
   };
 }
 
@@ -347,10 +340,10 @@ function paintFrontier(): void {
   ui.readout.innerHTML = `
     <div class="fact"><dt>Gewicht DAX</dt><dd>${formatPct(wDax)}</dd></div>
     <div class="fact"><dt>Gewicht Gold</dt><dd>${formatPct(1 - wDax)}</dd></div>
-    <div class="fact"><dt>μ<sub>p</sub> live</dt><dd>${formatPct(liveMu)}</dd></div>
-    <div class="fact"><dt>σ<sub>p</sub> live</dt><dd>${formatPct(liveSig)}</dd></div>
-    <div class="fact"><dt>σ<sub>MVP</sub></dt><dd>${formatPct(SOLL_SIG_MVP)}</dd></div>
-    <div class="fact"><dt>μ<sub>MVP</sub></dt><dd>${formatPct(SOLL_MU_MVP)}</dd></div>
+    <div class="fact"><dt>Portfoliorendite</dt><dd>${formatPct(liveMu)}</dd></div>
+    <div class="fact"><dt>Portfoliorisiko</dt><dd>${formatPct(liveSig)}</dd></div>
+    <div class="fact"><dt>Risiko MVP</dt><dd>${formatPct(SOLL_SIG_MVP)}</dd></div>
+    <div class="fact"><dt>Rendite MVP</dt><dd>${formatPct(SOLL_MU_MVP)}</dd></div>
   `;
   ui.valW.textContent = formatPct(wDax);
   ui.sliderW.value = String(Math.round(wDax * 100));
@@ -361,14 +354,15 @@ function paintFrontier(): void {
     return;
   }
   const parts = [
-    `<h3>Ihr Mix</h3>`,
-    `<p>DAX-ETF ${formatPct(wDax)}, Gold-ETC ${formatPct(1 - wDax)}. μ<sub>p</sub> ${formatPct(liveMu)}, σ<sub>p</sub> ${formatPct(liveSig)}.</p>`,
-    `<p>Feste Lehrwerte: σ<sub>MVP</sub> 9,60 %, μ<sub>MVP</sub> 6,80 %. 50/50 liegt bei μ ${formatPct(FIFTY_MU)} und σ ${formatPct(FIFTY_SIG)}.</p>`,
+    `<h3>Ihre Mischung</h3>`,
+    `<p>An dieser Mischung: DAX-ETF ${formatPct(wDax)}. Gold-ETC ${formatPct(1 - wDax)}.</p>`,
+    `<p>Die Portfoliorendite beträgt ${formatPct(liveMu)}. Das Portfoliorisiko beträgt ${formatPct(liveSig)}.</p>`,
+    `<p>Für das Minimum-Varianz-Portfolio bleiben Risiko 9,60 Prozent und erwartete Rendite 6,80 Prozent. Das Buch mit je 50 Prozent liegt bei 7,00 Prozent Rendite und 9,80 Prozent Risiko.</p>`,
   ];
   if (shorts) {
-    parts.push(`<p>Leerverkauf ist erlaubt. Die gestrichelten Flügel zeigen w<sub>DAX</sub> unter 0 % oder über 100 %.</p>`);
+    parts.push(`<p>Leerverkauf ist erlaubt. Die gestrichelten Flügel zeigen ein DAX-Gewicht unter 0 Prozent oder über 100 Prozent.</p>`);
   } else {
-    parts.push(`<p>Nur Long: die Grenze ist auf den durchgezogenen Bogen zwischen 0 % und 100 % begrenzt.</p>`);
+    parts.push(`<p>Nur kaufen: die Linie läuft nur zwischen 0 Prozent und 100 Prozent.</p>`);
   }
   ui.mixCard.innerHTML = parts.join("\n    ");
   ui.mixCard.hidden = false;
@@ -393,7 +387,7 @@ function paintKipp(): void {
   const tipped = Math.abs(muX - KIPP_MU_X_LO) < 1e-4;
   ui.kippBox.className = tipped ? "kipp-box is-tipped" : "kipp-box";
   ui.kippLive.textContent =
-    `μ_X ${formatPct(muX)} → w_X ${shown}. Live-Formel ${formatPct(live)}. Lehrwerte an den Endpunkten: 70,00 % → 29,00 %.`;
+    `Die erwartete Rendite von Fonds X steht bei ${formatPct(muX)}. Das Gewicht von X steht bei ${shown}. An den Endpunkten der Rechnung kippt das Gewicht von 70,00 Prozent auf 29,00 Prozent.`;
 }
 
 function paintCrisis(): void {
@@ -402,7 +396,7 @@ function paintCrisis(): void {
   ui.valRho.textContent = formatNum(rho);
   ui.sliderRho.value = String(Math.round(rho * 100));
   ui.crisisLive.textContent =
-    `ρ ${formatNum(rho)} → σ_p ${formatPct(live)}, μ_p ${formatPct(CRISIS_MU)}. Lehrwerte: ${formatPct(CRISIS_SIG_CALM)} bei ρ ${formatNum(CRISIS_RHO_CALM)}, ${formatPct(CRISIS_SIG_STRESS)} bei ρ ${formatNum(CRISIS_RHO_STRESS)}, Sprung +${formatNum(CRISIS_JUMP_PP).replace(",00", ",0").replace(/0$/, "")} Punkte.`;
+    `Die Korrelation steht bei ${formatNum(rho)}. Das Portfoliorisiko steht bei ${formatPct(live)}. Die Portfoliorendite bleibt 5,40 Prozent. In der ruhigen Rechnung: Korrelation 0,20, Risiko 11,50 Prozent. In der Stressrechnung: Korrelation 0,80, Risiko 12,80 Prozent. Der Sprung beträgt 1,30 Prozentpunkte, ohne Umschichtung.`;
 }
 
 function paintAll(): void {

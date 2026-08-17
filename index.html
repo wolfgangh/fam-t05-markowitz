@@ -22,38 +22,42 @@
         <h2 id="sit-title">Situation</h2>
         <div class="lede">
           <p>
-            Ein Software-Anbieter hat dem Committee eine Portfolio-Optimierung vorgeführt
-            („Nobelpreis-Methode“).
+            Sie sitzen im Anlageausschuss. Ein Software-Anbieter hat eine Portfolio-Optimierung vorgeführt. Er nennt sie Nobelpreis-Methode.
           </p>
           <p>
-            Zwei Fragen stehen im Raum. Erstens: Wie viel Diversifikation braucht das Haus –
-            quantitativ begründet? Zweitens: Die Software kaufen – ja oder nein?
+            Zwei Fragen liegen auf dem Tisch. Wie viel Mischung braucht das Haus, mit Zahlen begründet? Und: diese Software kaufen, ja oder nein?
           </p>
           <p>
-            Zwei Anlagen liegen auf dem Tisch: ein DAX-ETF und ein Gold-ETC.
+            Zwei Anlagen liegen vor Ihnen. Ein DAX-ETF und ein Gold-ETC.
+          </p>
+          <p>
+            Die erwartete Rendite schreiben wir μ. Das ist der Satz, den Sie im Mittel erwarten. Das Risiko schreiben wir σ. Das ist die Schwankung um diesen Satz. Die Korrelation schreiben wir ρ. Sie sagt, wie stark die beiden Anlagen zusammenlaufen. Minus 1 ist gegenläufig. Plus 1 ist Gleichlauf.
+          </p>
+          <p>
+            Diversifikation heißt: das Risiko sinkt, weil die Anlagen nicht im Gleichschritt laufen.
           </p>
         </div>
         <dl class="facts facts-3">
           <div class="fact">
             <dt>DAX-ETF</dt>
-            <dd>μ 8,00 % · σ 16,10 %</dd>
+            <dd>erwartete Rendite 8,00 %, Risiko 16,10 %</dd>
           </div>
           <div class="fact">
             <dt>Gold-ETC</dt>
-            <dd>μ 6,00 % · σ 13,00 %</dd>
+            <dd>erwartete Rendite 6,00 %, Risiko 13,00 %</dd>
           </div>
           <div class="fact">
             <dt>Korrelation</dt>
-            <dd>ρ = −0,10</dd>
+            <dd>−0,10</dd>
           </div>
         </dl>
         <table class="compare" aria-label="Zwei Anlagen">
           <thead>
             <tr>
               <th scope="col">Anlage</th>
-              <th scope="col">μ</th>
-              <th scope="col">σ</th>
-              <th scope="col">ρ</th>
+              <th scope="col">Erwartete Rendite μ</th>
+              <th scope="col">Risiko σ</th>
+              <th scope="col">Korrelation ρ</th>
             </tr>
           </thead>
           <tbody>
@@ -72,12 +76,14 @@
         </table>
         <p>
           Die Rendite des Portfolios ist das gewichtete Mittel. Das Risiko ist das nicht.
-          Für jedes ρ kleiner als 1 liegt σ<sub>p</sub> unter dem gewichteten Mittel der
-          Einzelrisiken. Das Minimum-Varianz-Portfolio braucht keine Renditeprognosen –
-          nur die beiden Risiken und die Korrelation.
+          Liegt die Korrelation unter 1, liegt das Portfoliorisiko unter dem gewichteten Mittel der
+          Einzelrisiken. Dieses Risiko der Mischung schreiben wir σ<sub>p</sub>.
         </p>
         <p>
-          Zum Vergleich, nur als Kontext: Halbe-halbe liefert μ 7,00 % und σ 9,80 %.
+          Das Minimum-Varianz-Portfolio ist die Mischung mit dem kleinsten Risiko. Kurz: MVP. Es braucht keine Renditeprognose. Es braucht nur die beiden Risiken und die Korrelation.
+        </p>
+        <p>
+          Zum Vergleich: je 50 Prozent DAX und Gold. Dann beträgt die erwartete Rendite 7,00 Prozent. Das Risiko beträgt 9,80 Prozent.
         </p>
       </section>
 
@@ -86,23 +92,23 @@
         <p>
           Tippen Sie die drei Zahlen selbst. Die Felder sind absichtlich leer.
           Erst nach dem Bestätigen sehen Sie den Vergleich mit den drei Soll-Zahlen.
-          Danach öffnen sich das Zwei-Anlagen-Modell, die Kipp-Demo und die Krise.
+          Danach öffnen sich das Zwei-Anlagen-Modell, die Kipp-Rechnung und die Krise.
         </p>
         <form id="handweg-form" novalidate>
           <div class="form-grid">
             <div class="field">
               <label for="w-dax">Gewicht DAX (Prozent)</label>
-              <span class="hint" id="w-dax-hint">Anteil des DAX-ETF im Minimum-Varianz-Portfolio. Nur σ und ρ, keine μ. Zwei Dezimalen sind zulässig.</span>
+              <span class="hint" id="w-dax-hint">Anteil des DAX-ETF in der Mischung mit dem kleinsten Risiko. Sie nutzen nur Risiko und Korrelation, keine erwartete Rendite. Zwei Dezimalen sind zulässig.</span>
               <input id="w-dax" name="w-dax" type="text" inputmode="decimal" autocomplete="off" required placeholder="Prozent, zum Beispiel 40 oder 40,00" aria-describedby="w-dax-hint" />
             </div>
             <div class="field">
               <label for="w-gold">Gewicht Gold (Prozent)</label>
-              <span class="hint" id="w-gold-hint">Anteil des Gold-ETC. Zusammen 100 Prozent.</span>
+              <span class="hint" id="w-gold-hint">Anteil des Gold-ETC. Beide Anteile zusammen ergeben 100 Prozent.</span>
               <input id="w-gold" name="w-gold" type="text" inputmode="decimal" autocomplete="off" required placeholder="Prozent, zum Beispiel 60 oder 60,00" aria-describedby="w-gold-hint" />
             </div>
             <div class="field">
               <label for="sig-mvp">Risiko des Minimum-Varianz-Portfolios (Prozent)</label>
-              <span class="hint" id="sig-mvp-hint">Portfoliorisiko σ des MVP in Prozent. Zwei Dezimalen sind zulässig.</span>
+              <span class="hint" id="sig-mvp-hint">Das Portfoliorisiko dieser Mischung, in Prozent. Zwei Dezimalen sind zulässig.</span>
               <input id="sig-mvp" name="sig-mvp" type="text" inputmode="decimal" autocomplete="off" required placeholder="Prozent, zum Beispiel 9,6 oder 9,60" aria-describedby="sig-mvp-hint" />
             </div>
           </div>
@@ -135,9 +141,7 @@
       <section class="card model-card" aria-labelledby="model-title">
         <h2 id="model-title">Zwei Anlagen – DAX und Gold</h2>
         <p>
-          Rendite μ nach oben, Risiko σ nach rechts. Die durchgezogene Linie ist nur Long
-          (Gewichte 0 bis 100 Prozent). Die gestrichelten Flügel sind Leerverkauf.
-          Der Knick sitzt bei 0 Prozent und bei 100 Prozent.
+          Die erwartete Rendite steht nach oben. Das Risiko steht nach rechts. Die durchgezogene Linie gilt, wenn Sie nur kaufen. Die Gewichte liegen dann zwischen 0 und 100 Prozent. Die gestrichelten Flügel gelten beim Leerverkauf. Leerverkauf heißt: Sie verkaufen eine Anlage, die Sie nicht besitzen. Das Gewicht kann unter 0 Prozent oder über 100 Prozent gehen. Der Knick sitzt bei 0 Prozent und bei 100 Prozent.
         </p>
         <div id="model-region" class="model-region" aria-disabled="true">
           <div class="model-lock" id="model-lock">
@@ -147,7 +151,7 @@
           <dl class="facts facts-3" id="readout"></dl>
           <div class="mix" id="mix-card" hidden></div>
           <div class="toggle" role="group" aria-label="Leerverkauf">
-            <button type="button" id="btn-long" aria-pressed="true">Nur Long</button>
+            <button type="button" id="btn-long" aria-pressed="true">Nur kaufen</button>
             <button type="button" id="btn-short" aria-pressed="false">Leerverkauf erlaubt</button>
           </div>
           <div class="sliders">
@@ -171,48 +175,55 @@
             σ<sub>p</sub> = (w<sub>1</sub>²σ<sub>1</sub>² + w<sub>2</sub>²σ<sub>2</sub>² + 2 w<sub>1</sub> w<sub>2</sub> σ<sub>1</sub> σ<sub>2</sub> ρ)<sup>1/2</sup>
           </p>
           <p>
-            Das MVP nutzt nur σ und ρ, nicht μ. Feste Lehrwerte: σ<sub>MVP</sub> 9,60 %,
-            μ<sub>MVP</sub> 6,80 %.
+            Das Minimum-Varianz-Portfolio nutzt nur Risiko und Korrelation, keine erwartete Rendite. Für DAX und Gold: Risiko 9,60 Prozent, erwartete Rendite 6,80 Prozent.
           </p>
           <p>Das Modell liefert keine Prognose.</p>
         </div>
       </section>
 
       <section class="card hidden" id="kipp-card" aria-labelledby="kipp-title">
-        <h2 id="kipp-title">Kipp-Demo</h2>
+        <h2 id="kipp-title">Wenn die Prognose kippt</h2>
         <p>
-          Zwei Fonds. Der Optimierer sucht das Tangency-Portfolio, also die größte
-          Sharpe-Ratio. Fonds X: Rendite zuerst 8,00 %, dann 7,00 %, Risiko 16,00 %.
-          Fonds Y: Rendite 9,00 %, Risiko 20,00 %. Korrelation 0,80. Geldmarkt r<sub>f</sub> 2,00 %.
+          Kipp heißt: ein kleiner Schätzschritt legt das Gewicht um.
         </p>
         <p>
-          Ein Prognosepunkt – innerhalb jedes Schätzfehlers – ändert das Gewicht von X.
+          Zwei Fonds stehen zur Wahl. Der Optimierer sucht die Mischung mit der größten Überrendite je Risiko. Diese Überrendite je Risiko heißt Sharpe-Ratio. Die Mischung mit der größten Sharpe-Ratio heißt Tangency-Portfolio.
+        </p>
+        <p>
+          Fonds X: erwartete Rendite zuerst 8,00 Prozent, dann 7,00 Prozent. Risiko 16,00 Prozent.
+        </p>
+        <p>
+          Fonds Y: erwartete Rendite 9,00 Prozent. Risiko 20,00 Prozent.
+        </p>
+        <p>
+          Die Korrelation beträgt 0,80. Der Geldmarkt steht bei 2,00 Prozent.
+        </p>
+        <p>
+          Ein einzelner Prognosepunkt ändert das Gewicht von X. Der Punkt liegt innerhalb jedes üblichen Schätzfehlers.
         </p>
         <div class="kipp-box" id="kipp-box">
           <p class="figure" id="kipp-figure">70,00 %</p>
           <p id="kipp-live"></p>
         </div>
         <div class="seg">
-          <button type="button" class="secondary" id="kipp-hi">μ<sub>X</sub> = 8,00 %</button>
-          <button type="button" class="secondary" id="kipp-lo">μ<sub>X</sub> = 7,00 %</button>
+          <button type="button" class="secondary" id="kipp-hi">X bei 8,00 %</button>
+          <button type="button" class="secondary" id="kipp-lo">X bei 7,00 %</button>
         </div>
         <div class="sliders">
           <div class="slider-row">
-            <label for="slider-mux">μ<sub>X</sub> von 8,00 % nach 7,00 % <span id="val-mux">8,00 %</span></label>
+            <label for="slider-mux">Erwartete Rendite von X, von 8,00 % nach 7,00 % <span id="val-mux">8,00 %</span></label>
             <input id="slider-mux" type="range" min="0" max="100" step="1" value="0" />
           </div>
         </div>
         <p>
-          An den Endpunkten der Lehrrechnung kippt w<sub>X</sub> von 70,00 % auf 29,00 %.
+          An den Endpunkten der Rechnung kippt das Gewicht von X von 70,00 Prozent auf 29,00 Prozent.
         </p>
         <p>
-          Michaud nennt den Optimierer einen Error Maximizer: Der Optimierer verstärkt
-          das Rauschen in den Eingaben.
+          Der Optimierer verstärkt das Rauschen in den Eingaben. Michaud nennt das Error Maximizer, den Fehlerverstärker.
         </p>
         <div class="lehr">
           <p>
-            Black-Litterman ist die bessere Verpackung derselben Zutaten – nicht mehr.
-            In diesem Labor gibt es dafür keinen eigenen Reiter.
+            Black-Litterman packt dieselben Zutaten nur anders. Die Qualität der Schätzungen bleibt entscheidend.
           </p>
         </div>
       </section>
@@ -220,7 +231,9 @@
       <section class="card hidden" id="crisis-card" aria-labelledby="crisis-title">
         <h2 id="crisis-title">Krise</h2>
         <p>
-          60 % Aktien-ETF (μ 7,00 %, σ 18,00 %) und 40 % Renten-ETF (μ 3,00 %, σ 6,00 %).
+          Das Buch ist 60 Prozent Aktien-ETF und 40 Prozent Renten-ETF. Aktien: erwartete Rendite 7,00 Prozent, Risiko 18,00 Prozent. Renten: erwartete Rendite 3,00 Prozent, Risiko 6,00 Prozent.
+        </p>
+        <p>
           Schieben Sie die Korrelation von 0,00 bis 1,00.
         </p>
         <div class="crisis-box">
@@ -229,13 +242,18 @@
         </div>
         <div class="sliders">
           <div class="slider-row">
-            <label for="slider-rho">Korrelation ρ <span id="val-rho">0,20</span></label>
+            <label for="slider-rho">Korrelation <span id="val-rho">0,20</span></label>
             <input id="slider-rho" type="range" min="0" max="100" step="1" value="20" />
           </div>
         </div>
         <p>
-          In der Lehrrechnung: ρ = 0,20 → σ<sub>p</sub> ≈ 11,50 %, μ<sub>p</sub> 5,40 %.
-          ρ = 0,80 → σ<sub>p</sub> ≈ 12,80 %. Der Sprung beträgt +1,3 Punkte – ohne jede Umschichtung.
+          In der ruhigen Rechnung beträgt die Korrelation 0,20. Das Portfoliorisiko beträgt dann 11,50 Prozent. Die Portfoliorendite beträgt 5,40 Prozent.
+        </p>
+        <p>
+          In der Stressrechnung beträgt die Korrelation 0,80. Das Portfoliorisiko beträgt dann 12,80 Prozent.
+        </p>
+        <p>
+          Der Sprung beträgt 1,30 Prozentpunkte. Die Mischung bleibt dieselbe.
         </p>
         <p>
           Wer Diversifikation in ruhigen Zeiten schätzt, überschätzt den Schutz im Stress.
@@ -245,25 +263,26 @@
       <section class="card" aria-labelledby="merke-title">
         <h2 id="merke-title">Merksatz</h2>
         <p class="merksatz">„Markowitz scheitert nicht an der Mathematik, sondern an der Nahrung.“</p>
+        <p>Nahrung sind die Schätzungen, die in die Formel gehen. Erwartete Renditen, Risiken, Korrelation.</p>
       </section>
 
       <section class="card" aria-labelledby="task-title">
         <h2 id="task-title">Aufgabe</h2>
         <div class="task">
           <p>
-            Berechnen Sie die MVP-Gewichte für den DAX-ETF und den Gold-ETC aus den Risiken
-            und der Korrelation.
+            Sie prüfen dieselben zwei Anlagen. DAX-ETF und Gold-ETC. Risiken und Korrelation stehen in der Situation.
           </p>
           <p>
-            Die Formel in Worten: Der Anteil der ersten Anlage ist die Varianz der zweiten
-            Anlage minus dem Produkt aus beiden Risiken und der Korrelation. Dieser Zähler
-            wird geteilt durch die Summe beider Varianzen minus dem Doppelten desselben Produkts.
+            Rechnen Sie die Gewichte des Minimum-Varianz-Portfolios. Das ist die Mischung mit dem kleinsten Risiko.
           </p>
           <p>
-            Schreiben Sie w<sub>DAX</sub>, w<sub>Gold</sub> und σ<sub>MVP</sub>. Zwei Dezimalen, deutsches Format.
+            Der Anteil der ersten Anlage: Varianz der zweiten minus dem Produkt aus beiden Risiken und der Korrelation. Diesen Zähler teilen Sie durch die Summe beider Varianzen minus dem Doppelten desselben Produkts.
           </p>
           <p>
-            Hat das 50/50-Buch mehr Risiko als das MVP? Ein Satz reicht.
+            Schreiben Sie drei Zahlen. Gewicht DAX in Prozent. Gewicht Gold in Prozent. Risiko des Minimum-Varianz-Portfolios in Prozent. Zwei Dezimalen, deutsches Format.
+          </p>
+          <p>
+            Hat das Buch mit je 50 Prozent DAX und Gold mehr Risiko als das Minimum-Varianz-Portfolio? Ein Satz reicht.
           </p>
           <p>Abgabe in Moodle.</p>
         </div>
