@@ -1,7 +1,19 @@
 import "./style.css";
-import { formatNum, formatPct, parseDeNumber } from "./format";
+import {
+  CRISIS_RHO_DISPLAY_TOL,
+  DISPLAY_SNAP_TOL,
+  formatNum,
+  formatPct,
+  KIPP_MUX_DISPLAY_TOL,
+  KIPP_W_DISPLAY_TOL,
+  parseDeNumber,
+  snapDisplay,
+} from "./format";
 import {
   CRISIS_RHO_CALM,
+  CRISIS_RHO_STRESS,
+  CRISIS_SIG_CALM,
+  CRISIS_SIG_STRESS,
   DAX_MU,
   DAX_SIG,
   GOLD_MU,
@@ -50,6 +62,8 @@ const ui = {
   formError: must<HTMLParagraphElement>("form-error"),
   formHint: must<HTMLParagraphElement>("form-hint"),
   compare: must<HTMLElement>("compare"),
+  compareTable: must<HTMLTableElement>("compare-table"),
+  compareHead: must<HTMLElement>("compare-head"),
   compareBody: must<HTMLElement>("compare-body"),
   compareNote: must<HTMLParagraphElement>("compare-note"),
   verdict: must<HTMLElement>("verdict"),
@@ -64,7 +78,6 @@ const ui = {
   btnShort: must<HTMLButtonElement>("btn-short"),
   play: must<HTMLButtonElement>("play"),
   reset: must<HTMLButtonElement>("reset"),
-  example: must<HTMLButtonElement>("example"),
   kippCard: must<HTMLElement>("kipp-card"),
   kippBox: must<HTMLElement>("kipp-box"),
   kippFigure: must<HTMLElement>("kipp-figure"),
@@ -96,6 +109,13 @@ const SIG_MAX = 0.22;
 const MU_MIN = 0.045;
 const MU_MAX = 0.095;
 
+type UrlModel = {
+  w: number;
+  mux: number;
+  rho: number;
+  shorts: boolean;
+};
+
 let unlocked = false;
 let wDax = 0.4;
 let muX = KIPP_MU_X_HI;
@@ -103,6 +123,7 @@ let rho = CRISIS_RHO_CALM;
 let shorts = false;
 let animToken = 0;
 let dragging = false;
+let pendingModel: UrlModel | null = null;
 
 function wMin(): number {
   return shorts ? W_SHORT_MIN : W_LONG_MIN;
@@ -171,12 +192,6 @@ function fillInputs(v: FormValues | null): void {
   ui.sigMvp.value = formatNum(v.sigMvpPct);
 }
 
-function fillExample(): void {
-  ui.wDax.value = "40,00";
-  ui.wGold.value = "60,00";
-  ui.sigMvp.value = "9,60";
-}
-
 function trimNum(n: number): string {
   const rounded = Math.round(n * 100) / 100;
   if (Math.abs(rounded - Math.round(rounded)) < 1e-9) return String(Math.round(rounded));
@@ -201,7 +216,8 @@ function writeUrl(): void {
   );
 }
 
-function readUrl(): { w: number; mux: number; rho: number; shorts: boolean } | null {
+/** Model sliders only. Never reads or writes #w-dax / #w-gold / #sig-mvp. Ignores end/arith leftovers. */
+function parseModelQuery(): UrlModel | null {
   const q = new URLSearchParams(window.location.search);
   if (!q.has("w") && !q.has("mux") && !q.has("rho") && !q.has("shorts")) return null;
   const wPct = Number(q.get("w") ?? "40");
@@ -218,6 +234,18 @@ function readUrl(): { w: number; mux: number; rho: number; shorts: boolean } | n
   return { w, mux, rho: nextRho, shorts: nextShorts };
 }
 
+function readUrl(): UrlModel | null {
+  if (!unlocked) return null;
+  return parseModelQuery();
+}
+
+function applyUrlModel(m: UrlModel): void {
+  shorts = m.shorts;
+  wDax = clampW(m.w);
+  muX = m.mux;
+  rho = m.rho;
+}
+
 function verdictFor(v: FormValues): { ok: boolean; text: string } {
   const daxOk = nearPctPoints(v.wDaxPct, SOLL_W_DAX_PCT, W_TOL_PP);
   const goldOk = nearPctPoints(v.wGoldPct, SOLL_W_GOLD_PCT, W_TOL_PP);
@@ -228,35 +256,74 @@ function verdictFor(v: FormValues): { ok: boolean; text: string } {
       text: "RICHTIG. Gewicht DAX 40,00 Prozent. Gewicht Gold 60,00 Prozent. Risiko des Minimum-Varianz-Portfolios 9,60 Prozent. Diese Mischung braucht keine Renditeprognose.",
     };
   }
+  if (Math.abs(v.wDaxPct + v.wGoldPct - 100) > W_TOL_PP) {
+    return {
+      ok: false,
+      text: "FALSCH. Die beiden Gewichte müssen zusammen 100 Prozent ergeben.",
+    };
+  }
   return {
     ok: false,
-    text: "FALSCH. Mindestens eine Zahl weicht ab. Soll: Gewicht DAX 40,00 Prozent, Gewicht Gold 60,00 Prozent, Risiko 9,60 Prozent. Die Mischung nutzt nur Risiko und Korrelation, keine erwartete Rendite.",
+    text: "FALSCH. Sie haben die Mischung mit dem kleinsten Risiko verfehlt. Diese Mischung nutzt nur Risiko und Korrelation, keine erwartete Rendite.",
   };
 }
 
-function renderCompare(v: FormValues): void {
-  const rows: Array<[string, string, string]> = [
-    ["Gewicht DAX", formatPct(v.wDaxPct / 100), formatPct(SOLL_W_DAX_PCT / 100)],
-    ["Gewicht Gold", formatPct(v.wGoldPct / 100), formatPct(SOLL_W_GOLD_PCT / 100)],
-    ["Risiko des MVP", formatPct(v.sigMvpPct / 100), formatPct(SOLL_SIG_MVP_PCT / 100)],
-  ];
-  ui.compareBody.innerHTML = rows
-    .map(
-      ([name, mine, soll]) => `
+function setCompareHead(showSoll: boolean): void {
+  ui.compareHead.innerHTML = showSoll
+    ? `<th scope="col">Größe</th><th scope="col">Ihre Zahl</th><th scope="col">Soll</th>`
+    : `<th scope="col">Größe</th><th scope="col">Ihre Zahl</th>`;
+}
+
+function presentHandweg(ok: boolean, text: string, v: FormValues | null): void {
+  ui.compare.classList.remove("hidden");
+  ui.verdict.className = `verdict${ok ? "" : " is-false"}`;
+  ui.verdict.innerHTML = `<span class="verdict-word">${ok ? "RICHTIG" : "FALSCH"}</span><p>${text}</p>`;
+  ui.verdict.hidden = false;
+  if (!v) {
+    ui.compareBody.innerHTML = "";
+    ui.compareTable.hidden = true;
+    ui.compareNote.textContent = "Das Modell bleibt gesperrt.";
+    return;
+  }
+  if (ok) {
+    setCompareHead(true);
+    const rows: Array<[string, string, string]> = [
+      ["Gewicht DAX", formatPct(v.wDaxPct / 100), formatPct(SOLL_W_DAX_PCT / 100)],
+      ["Gewicht Gold", formatPct(v.wGoldPct / 100), formatPct(SOLL_W_GOLD_PCT / 100)],
+      ["Risiko des MVP", formatPct(v.sigMvpPct / 100), formatPct(SOLL_SIG_MVP_PCT / 100)],
+    ];
+    ui.compareBody.innerHTML = rows
+      .map(
+        ([name, mine, soll]) => `
     <tr>
       <th scope="row">${name}</th>
       <td>${mine}</td>
       <td>${soll}</td>
     </tr>`,
+      )
+      .join("");
+    ui.compareTable.hidden = false;
+    ui.compareNote.textContent =
+      "Vergleichen Sie Ihre Zahlen mit den Soll-Zahlen. Danach steht das Modell offen.";
+    return;
+  }
+  setCompareHead(false);
+  const rows: Array<[string, string]> = [
+    ["Gewicht DAX", formatPct(v.wDaxPct / 100)],
+    ["Gewicht Gold", formatPct(v.wGoldPct / 100)],
+    ["Risiko des MVP", formatPct(v.sigMvpPct / 100)],
+  ];
+  ui.compareBody.innerHTML = rows
+    .map(
+      ([name, mine]) => `
+    <tr>
+      <th scope="row">${name}</th>
+      <td>${mine}</td>
+    </tr>`,
     )
     .join("");
-  const vrd = verdictFor(v);
-  ui.verdict.className = `verdict${vrd.ok ? "" : " is-false"}`;
-  ui.verdict.innerHTML = `<span class="verdict-word">${vrd.ok ? "RICHTIG" : "FALSCH"}</span><p>${vrd.text}</p>`;
-  ui.verdict.hidden = false;
-  ui.compareNote.textContent = vrd.ok
-    ? "Vergleichen Sie Ihre Zahlen mit den Soll-Zahlen. Danach steht das Modell offen."
-    : "Vergleichen Sie Ihre Zahlen mit den Soll-Zahlen. Das Modell ist trotzdem offen.";
+  ui.compareTable.hidden = false;
+  ui.compareNote.textContent = "Das Modell bleibt gesperrt.";
 }
 
 function setControlsEnabled(on: boolean): void {
@@ -337,12 +404,16 @@ function paintFrontier(): void {
 
   const liveMu = portReturn(wDax, DAX_MU, GOLD_MU);
   const liveSig = portVol(wDax, DAX_SIG, GOLD_SIG, RHO_DG);
+  const mvpSigRaw = portVol(SOLL_W_DAX_PCT / 100, DAX_SIG, GOLD_SIG, RHO_DG);
+  const mvpSigShown = snapDisplay(mvpSigRaw, SOLL_SIG_MVP, DISPLAY_SNAP_TOL);
+  const atMvp = nearPctPoints(wDax * 100, SOLL_W_DAX_PCT, W_TOL_PP);
+  const liveSigShown = atMvp ? snapDisplay(liveSig, SOLL_SIG_MVP, DISPLAY_SNAP_TOL) : liveSig;
   ui.readout.innerHTML = `
     <div class="fact"><dt>Gewicht DAX</dt><dd>${formatPct(wDax)}</dd></div>
     <div class="fact"><dt>Gewicht Gold</dt><dd>${formatPct(1 - wDax)}</dd></div>
     <div class="fact"><dt>Portfoliorendite</dt><dd>${formatPct(liveMu)}</dd></div>
-    <div class="fact"><dt>Portfoliorisiko</dt><dd>${formatPct(liveSig)}</dd></div>
-    <div class="fact"><dt>Risiko MVP</dt><dd>${formatPct(SOLL_SIG_MVP)}</dd></div>
+    <div class="fact"><dt>Portfoliorisiko</dt><dd>${formatPct(liveSigShown)}</dd></div>
+    <div class="fact"><dt>Risiko MVP</dt><dd>${formatPct(mvpSigShown)}</dd></div>
     <div class="fact"><dt>Rendite MVP</dt><dd>${formatPct(SOLL_MU_MVP)}</dd></div>
   `;
   ui.valW.textContent = formatPct(wDax);
@@ -356,7 +427,7 @@ function paintFrontier(): void {
   const parts = [
     `<h3>Ihre Mischung</h3>`,
     `<p>An dieser Mischung: DAX-ETF ${formatPct(wDax)}. Gold-ETC ${formatPct(1 - wDax)}.</p>`,
-    `<p>Die Portfoliorendite beträgt ${formatPct(liveMu)}. Das Portfoliorisiko beträgt ${formatPct(liveSig)}.</p>`,
+    `<p>Die Portfoliorendite beträgt ${formatPct(liveMu)}. Das Portfoliorisiko beträgt ${formatPct(liveSigShown)}.</p>`,
     `<p>Für das Minimum-Varianz-Portfolio bleiben Risiko 9,60 Prozent und erwartete Rendite 6,80 Prozent. Das Buch mit je 50 Prozent liegt bei 7,00 Prozent Rendite und 9,80 Prozent Risiko.</p>`,
   ];
   if (shorts) {
@@ -373,8 +444,12 @@ function kippWeight(m: number): number {
 }
 
 function kippShown(m: number, live: number): string {
-  if (Math.abs(m - KIPP_MU_X_HI) < 1e-9) return formatPct(KIPP_W_HI);
-  if (Math.abs(m - KIPP_MU_X_LO) < 1e-9) return formatPct(KIPP_W_LO);
+  if (Math.abs(m - KIPP_MU_X_HI) < KIPP_MUX_DISPLAY_TOL) {
+    return formatPct(snapDisplay(live, KIPP_W_HI, KIPP_W_DISPLAY_TOL));
+  }
+  if (Math.abs(m - KIPP_MU_X_LO) < KIPP_MUX_DISPLAY_TOL) {
+    return formatPct(snapDisplay(live, KIPP_W_LO, KIPP_W_DISPLAY_TOL));
+  }
   return formatPct(live);
 }
 
@@ -392,11 +467,17 @@ function paintKipp(): void {
 
 function paintCrisis(): void {
   const live = crisisVol(rho);
-  ui.crisisFigure.textContent = formatPct(live);
+  let sigShown = live;
+  if (Math.abs(rho - CRISIS_RHO_CALM) < CRISIS_RHO_DISPLAY_TOL) {
+    sigShown = snapDisplay(live, CRISIS_SIG_CALM, DISPLAY_SNAP_TOL);
+  } else if (Math.abs(rho - CRISIS_RHO_STRESS) < CRISIS_RHO_DISPLAY_TOL) {
+    sigShown = snapDisplay(live, CRISIS_SIG_STRESS, DISPLAY_SNAP_TOL);
+  }
+  ui.crisisFigure.textContent = formatPct(sigShown);
   ui.valRho.textContent = formatNum(rho);
   ui.sliderRho.value = String(Math.round(rho * 100));
   ui.crisisLive.textContent =
-    `Die Korrelation steht bei ${formatNum(rho)}. Das Portfoliorisiko steht bei ${formatPct(live)}. Die Portfoliorendite bleibt 5,40 Prozent. In der ruhigen Rechnung: Korrelation 0,20, Risiko 11,50 Prozent. In der Stressrechnung: Korrelation 0,80, Risiko 12,80 Prozent. Der Sprung beträgt 1,30 Prozentpunkte, ohne Umschichtung.`;
+    `Die Korrelation steht bei ${formatNum(rho)}. Das Portfoliorisiko steht bei ${formatPct(sigShown)}. Die Portfoliorendite bleibt 5,40 Prozent. In der ruhigen Rechnung: Korrelation 0,20, Risiko 11,50 Prozent. In der Stressrechnung: Korrelation 0,80, Risiko 12,80 Prozent. Der Sprung beträgt 1,30 Prozentpunkte, ohne Umschichtung.`;
 }
 
 function paintAll(): void {
@@ -428,10 +509,13 @@ function playFrontier(): void {
 
 function unlock(v: FormValues): void {
   unlocked = true;
-  ui.compare.classList.remove("hidden");
+  const fromUrl = pendingModel ?? readUrl();
+  pendingModel = null;
+  if (fromUrl) applyUrlModel(fromUrl);
+  const vrd = verdictFor(v);
+  presentHandweg(true, vrd.text, v);
   ui.kippCard.classList.remove("hidden");
   ui.crisisCard.classList.remove("hidden");
-  renderCompare(v);
   ui.lock.hidden = true;
   setControlsEnabled(true);
   applyShortsRange();
@@ -439,8 +523,23 @@ function unlock(v: FormValues): void {
   writeUrl();
 }
 
+function relockKeepForm(): void {
+  unlocked = false;
+  animToken += 1;
+  ui.kippCard.classList.add("hidden");
+  ui.crisisCard.classList.add("hidden");
+  ui.lock.hidden = false;
+  ui.mixCard.hidden = true;
+  ui.mixCard.innerHTML = "";
+  setControlsEnabled(false);
+  applyShortsRange();
+  paintAll();
+  writeUrl();
+}
+
 function lockEmpty(): void {
   unlocked = false;
+  pendingModel = null;
   wDax = 0.4;
   muX = KIPP_MU_X_HI;
   rho = CRISIS_RHO_CALM;
@@ -450,6 +549,9 @@ function lockEmpty(): void {
   ui.formError.textContent = "";
   ui.formHint.textContent = "";
   ui.compare.classList.add("hidden");
+  setCompareHead(true);
+  ui.compareTable.hidden = false;
+  ui.compareBody.innerHTML = "";
   ui.kippCard.classList.add("hidden");
   ui.crisisCard.classList.add("hidden");
   ui.verdict.hidden = true;
@@ -530,23 +632,23 @@ function boot(): void {
     if (typeof parsed === "string") {
       ui.formError.textContent = parsed;
       ui.formHint.textContent = "";
+      presentHandweg(false, parsed, null);
+      if (unlocked) relockKeepForm();
       return;
     }
     ui.formError.textContent = "";
     ui.formHint.textContent = "";
+    const vrd = verdictFor(parsed);
+    if (!vrd.ok) {
+      presentHandweg(false, vrd.text, parsed);
+      if (unlocked) relockKeepForm();
+      return;
+    }
     unlock(parsed);
   });
 
   ui.reset.addEventListener("click", () => {
     lockEmpty();
-  });
-
-  ui.example.addEventListener("click", () => {
-    fillExample();
-    ui.formError.textContent = "";
-    ui.formHint.textContent =
-      "Die Beispielzahlen stehen in den Feldern. Bestätigen Sie die Zahlen. Das Modell öffnet sich erst danach.";
-    ui.wDax.focus();
   });
 
   ui.sliderW.addEventListener("input", () => {
@@ -633,19 +735,9 @@ function boot(): void {
     }
   });
 
-  const fromUrl = readUrl();
-  if (fromUrl) {
-    shorts = fromUrl.shorts;
-    wDax = fromUrl.w;
-    muX = fromUrl.mux;
-    rho = fromUrl.rho;
-    fillExample();
-    const parsed = readForm();
-    if (typeof parsed !== "string") unlock(parsed);
-    else lockEmpty();
-  } else {
-    lockEmpty();
-  }
+  const pending = parseModelQuery();
+  lockEmpty();
+  pendingModel = pending;
 }
 
 void boot();
