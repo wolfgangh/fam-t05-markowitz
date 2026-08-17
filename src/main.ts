@@ -74,6 +74,7 @@ const ui = {
   mixCard: must<HTMLElement>("mix-card"),
   sliderW: must<HTMLInputElement>("slider-w"),
   valW: must<HTMLElement>("val-w"),
+  modelSliders: must<HTMLElement>("model-sliders"),
   btnLong: must<HTMLButtonElement>("btn-long"),
   btnShort: must<HTMLButtonElement>("btn-short"),
   play: must<HTMLButtonElement>("play"),
@@ -91,6 +92,7 @@ const ui = {
   crisisLive: must<HTMLElement>("crisis-live"),
   sliderRho: must<HTMLInputElement>("slider-rho"),
   valRho: must<HTMLElement>("val-rho"),
+  lehrMvp: must<HTMLElement>("lehr-mvp"),
 };
 
 const W_LONG_MIN = 0;
@@ -332,6 +334,7 @@ function setControlsEnabled(on: boolean): void {
   ui.btnLong.disabled = !on;
   ui.btnShort.disabled = !on;
   ui.region.setAttribute("aria-disabled", on ? "false" : "true");
+  ui.modelSliders.hidden = !on;
 }
 
 function applyShortsRange(): void {
@@ -408,6 +411,22 @@ function paintFrontier(): void {
   const mvpSigShown = snapDisplay(mvpSigRaw, SOLL_SIG_MVP, DISPLAY_SNAP_TOL);
   const atMvp = nearPctPoints(wDax * 100, SOLL_W_DAX_PCT, W_TOL_PP);
   const liveSigShown = atMvp ? snapDisplay(liveSig, SOLL_SIG_MVP, DISPLAY_SNAP_TOL) : liveSig;
+  if (!unlocked) {
+    ui.readout.innerHTML = `
+    <div class="fact"><dt>Gewicht DAX</dt><dd>—</dd></div>
+    <div class="fact"><dt>Gewicht Gold</dt><dd>—</dd></div>
+    <div class="fact"><dt>Portfoliorendite</dt><dd>—</dd></div>
+    <div class="fact"><dt>Portfoliorisiko</dt><dd>—</dd></div>
+    <div class="fact"><dt>Risiko MVP</dt><dd>—</dd></div>
+    <div class="fact"><dt>Rendite MVP</dt><dd>—</dd></div>
+  `;
+    ui.valW.textContent = "—";
+    ui.sliderW.value = String(Math.round(wDax * 100));
+    ui.mixCard.hidden = true;
+    ui.mixCard.innerHTML = "";
+    return;
+  }
+
   ui.readout.innerHTML = `
     <div class="fact"><dt>Gewicht DAX</dt><dd>${formatPct(wDax)}</dd></div>
     <div class="fact"><dt>Gewicht Gold</dt><dd>${formatPct(1 - wDax)}</dd></div>
@@ -418,12 +437,6 @@ function paintFrontier(): void {
   `;
   ui.valW.textContent = formatPct(wDax);
   ui.sliderW.value = String(Math.round(wDax * 100));
-
-  if (!unlocked) {
-    ui.mixCard.hidden = true;
-    ui.mixCard.innerHTML = "";
-    return;
-  }
   const parts = [
     `<h3>Ihre Mischung</h3>`,
     `<p>An dieser Mischung: DAX-ETF ${formatPct(wDax)}. Gold-ETC ${formatPct(1 - wDax)}.</p>`,
@@ -517,6 +530,7 @@ function unlock(v: FormValues): void {
   ui.kippCard.classList.remove("hidden");
   ui.crisisCard.classList.remove("hidden");
   ui.lock.hidden = true;
+  ui.lehrMvp.hidden = false;
   setControlsEnabled(true);
   applyShortsRange();
   paintAll();
@@ -529,6 +543,7 @@ function relockKeepForm(): void {
   ui.kippCard.classList.add("hidden");
   ui.crisisCard.classList.add("hidden");
   ui.lock.hidden = false;
+  ui.lehrMvp.hidden = true;
   ui.mixCard.hidden = true;
   ui.mixCard.innerHTML = "";
   setControlsEnabled(false);
@@ -556,6 +571,7 @@ function lockEmpty(): void {
   ui.crisisCard.classList.add("hidden");
   ui.verdict.hidden = true;
   ui.lock.hidden = false;
+  ui.lehrMvp.hidden = true;
   ui.mixCard.hidden = true;
   ui.mixCard.innerHTML = "";
   setControlsEnabled(false);

@@ -252,7 +252,9 @@ button:hover:not(:disabled) { filter: brightness(1.08); }
 .mix p:last-child { margin-bottom: 0; }
 
 #mix-card[hidden],
-#total-note[hidden] { display: none; }
+#total-note[hidden],
+#lehr-mvp[hidden],
+#model-sliders[hidden] { display: none; }
 
 .mix h3 {
   margin: 0 0 8px;

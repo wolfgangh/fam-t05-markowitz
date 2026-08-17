@@ -153,9 +153,9 @@
             <button type="button" id="btn-long" aria-pressed="true">Nur kaufen</button>
             <button type="button" id="btn-short" aria-pressed="false">Leerverkauf erlaubt</button>
           </div>
-          <div class="sliders">
+          <div class="sliders" id="model-sliders" hidden>
             <div class="slider-row">
-              <label for="slider-w">Gewicht DAX-ETF <span id="val-w">40,00 %</span></label>
+              <label for="slider-w">Gewicht DAX-ETF <span id="val-w">—</span></label>
               <input id="slider-w" type="range" min="0" max="100" step="1" value="40" disabled />
             </div>
           </div>
@@ -173,7 +173,7 @@
           <p class="eq" aria-label="Formel Portfoliorisiko">
             σ<sub>p</sub> = (w<sub>1</sub>²σ<sub>1</sub>² + w<sub>2</sub>²σ<sub>2</sub>² + 2 w<sub>1</sub> w<sub>2</sub> σ<sub>1</sub> σ<sub>2</sub> ρ)<sup>1/2</sup>
           </p>
-          <p>
+          <p id="lehr-mvp" hidden>
             Das Minimum-Varianz-Portfolio nutzt nur Risiko und Korrelation, keine erwartete Rendite. Für DAX und Gold: Risiko 9,60 Prozent, erwartete Rendite 6,80 Prozent.
           </p>
           <p>Das Modell liefert keine Prognose.</p>
