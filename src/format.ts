@@ -28,6 +28,17 @@ export function formatPct(ratio: number): string {
   return withMinus(pct2.format(ratio));
 }
 
+/** Classroom display snap. Used only on formatted teaching-point outputs. */
+export const DISPLAY_SNAP_TOL = 0.002;
+export const CRISIS_RHO_DISPLAY_TOL = 0.005;
+export const KIPP_W_DISPLAY_TOL = 0.005;
+export const KIPP_MUX_DISPLAY_TOL = 1e-4;
+
+export function snapDisplay(raw: number, canon: number, tol = DISPLAY_SNAP_TOL): number {
+  if (!Number.isFinite(raw) || !Number.isFinite(canon)) return raw;
+  return Math.abs(raw - canon) < tol ? canon : raw;
+}
+
 /** de-DE input: 75.000, 75000, 75.000,00, −13,40, -13.4 */
 export function parseDeNumber(raw: string): number | null {
   let t = raw.trim().replace(/\s/g, "").replace(/€/g, "").replace(/%/g, "");
