@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FAM Einheit T05: Zwei Anlagen, Diversifikation und das Minimum-Varianz-Portfolio. OTH Regensburg." />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>FAM – Financial Markets and Asset Management | Einheit T05</title>
+  </head>
+  <body>
+    <a class="skip" href="#inhalt">Zum Inhalt</a>
+    <div class="wrap" id="inhalt">
+      <header class="masthead">
+        <p class="kicker">OTH Regensburg · Fakultät Business and Management · FAM</p>
+        <h1>FAM – Financial Markets and Asset Management | Einheit T05</h1>
+        <p class="sub">Markowitz · Zwei Anlagen · Diversifikation</p>
+        <div class="bar" aria-hidden="true"></div>
+      </header>
+
+      <section class="card" aria-labelledby="sit-title">
+        <h2 id="sit-title">Situation</h2>
+        <div class="lede">
+          <p>
+            Ein Software-Anbieter hat dem Committee eine Portfolio-Optimierung vorgeführt
+            („Nobelpreis-Methode“).
+          </p>
+          <p>
+            Zwei Fragen stehen im Raum. Erstens: Wie viel Diversifikation braucht das Haus –
+            quantitativ begründet? Zweitens: Die Software kaufen – ja oder nein?
+          </p>
+          <p>
+            Zwei Anlagen liegen auf dem Tisch: ein DAX-ETF und ein Gold-ETC.
+          </p>
+        </div>
+        <dl class="facts facts-3">
+          <div class="fact">
+            <dt>DAX-ETF</dt>
+            <dd>μ 8,00 % · σ 16,10 %</dd>
+          </div>
+          <div class="fact">
+            <dt>Gold-ETC</dt>
+            <dd>μ 6,00 % · σ 13,00 %</dd>
+          </div>
+          <div class="fact">
+            <dt>Korrelation</dt>
+            <dd>ρ = −0,10</dd>
+          </div>
+        </dl>
+        <table class="compare" aria-label="Zwei Anlagen">
+          <thead>
+            <tr>
+              <th scope="col">Anlage</th>
+              <th scope="col">μ</th>
+              <th scope="col">σ</th>
+              <th scope="col">ρ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">DAX-ETF</th>
+              <td>8,00 %</td>
+              <td>16,10 %</td>
+              <td rowspan="2">−0,10</td>
+            </tr>
+            <tr>
+              <th scope="row">Gold-ETC</th>
+              <td>6,00 %</td>
+              <td>13,00 %</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Die Rendite des Portfolios ist das gewichtete Mittel. Das Risiko ist das nicht.
+          Für jedes ρ kleiner als 1 liegt σ<sub>p</sub> unter dem gewichteten Mittel der
+          Einzelrisiken. Das Minimum-Varianz-Portfolio braucht keine Renditeprognosen –
+          nur die beiden Risiken und die Korrelation.
+        </p>
+        <p>
+          Zum Vergleich, nur als Kontext: Halbe-halbe liefert μ 7,00 % und σ 9,80 %.
+        </p>
+      </section>
+
+      <section class="card" aria-labelledby="handweg-title">
+        <h2 id="handweg-title">Handweg – drei Zahlen</h2>
+        <p>
+          Tippen Sie die drei Zahlen selbst. Die Felder sind absichtlich leer.
+          Erst nach dem Bestätigen sehen Sie den Vergleich mit den drei Soll-Zahlen.
+          Danach öffnen sich das Zwei-Anlagen-Modell, die Kipp-Demo und die Krise.
+        </p>
+        <form id="handweg-form" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label for="w-dax">Gewicht DAX (Prozent)</label>
+              <span class="hint" id="w-dax-hint">Anteil des DAX-ETF im Minimum-Varianz-Portfolio. Nur σ und ρ, keine μ. Zwei Dezimalen sind zulässig.</span>
+              <input id="w-dax" name="w-dax" type="text" inputmode="decimal" autocomplete="off" required placeholder="Prozent, zum Beispiel 40 oder 40,00" aria-describedby="w-dax-hint" />
+            </div>
+            <div class="field">
+              <label for="w-gold">Gewicht Gold (Prozent)</label>
+              <span class="hint" id="w-gold-hint">Anteil des Gold-ETC. Zusammen 100 Prozent.</span>
+              <input id="w-gold" name="w-gold" type="text" inputmode="decimal" autocomplete="off" required placeholder="Prozent, zum Beispiel 60 oder 60,00" aria-describedby="w-gold-hint" />
+            </div>
+            <div class="field">
+              <label for="sig-mvp">Risiko des Minimum-Varianz-Portfolios (Prozent)</label>
+              <span class="hint" id="sig-mvp-hint">Portfoliorisiko σ des MVP in Prozent. Zwei Dezimalen sind zulässig.</span>
+              <input id="sig-mvp" name="sig-mvp" type="text" inputmode="decimal" autocomplete="off" required placeholder="Prozent, zum Beispiel 9,6 oder 9,60" aria-describedby="sig-mvp-hint" />
+            </div>
+          </div>
+          <p class="err" id="form-error" role="alert"></p>
+          <p class="hint" id="form-hint"></p>
+          <div class="actions">
+            <button type="submit">Zahlen bestätigen</button>
+            <button type="button" class="secondary" id="example">Beispielzahlen einsetzen</button>
+            <button type="button" class="secondary" id="reset">Zurücksetzen</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card hidden" id="compare" aria-labelledby="compare-title">
+        <h2 id="compare-title">Ihre Zahlen gegen die drei Soll-Zahlen</h2>
+        <div id="verdict" class="verdict" hidden aria-live="polite"></div>
+        <p id="compare-note"></p>
+        <table class="compare">
+          <thead>
+            <tr>
+              <th scope="col">Größe</th>
+              <th scope="col">Ihre Zahl</th>
+              <th scope="col">Soll</th>
+            </tr>
+          </thead>
+          <tbody id="compare-body"></tbody>
+        </table>
+      </section>
+
+      <section class="card model-card" aria-labelledby="model-title">
+        <h2 id="model-title">Zwei Anlagen – DAX und Gold</h2>
+        <p>
+          Rendite μ nach oben, Risiko σ nach rechts. Die durchgezogene Linie ist nur Long
+          (Gewichte 0 bis 100 Prozent). Die gestrichelten Flügel sind Leerverkauf.
+          Der Knick sitzt bei 0 Prozent und bei 100 Prozent.
+        </p>
+        <div id="model-region" class="model-region" aria-disabled="true">
+          <div class="model-lock" id="model-lock">
+            <p>Das Modell bleibt gesperrt, bis Sie die drei Zahlen bestätigt haben.</p>
+          </div>
+          <div class="frontier-host" id="frontier-host" aria-label="Effiziente Grenze DAX und Gold"></div>
+          <dl class="facts facts-3" id="readout"></dl>
+          <div class="mix" id="mix-card" hidden></div>
+          <div class="toggle" role="group" aria-label="Leerverkauf">
+            <button type="button" id="btn-long" aria-pressed="true">Nur Long</button>
+            <button type="button" id="btn-short" aria-pressed="false">Leerverkauf erlaubt</button>
+          </div>
+          <div class="sliders">
+            <div class="slider-row">
+              <label for="slider-w">Gewicht DAX-ETF <span id="val-w">40,00 %</span></label>
+              <input id="slider-w" type="range" min="0" max="100" step="1" value="40" disabled />
+            </div>
+          </div>
+          <div class="actions">
+            <button type="button" id="play" disabled>Ablauf zeigen</button>
+          </div>
+          <p class="hint">Pfeiltasten im Diagramm: links und rechts verschieben das Gewicht.</p>
+        </div>
+        <div class="lehr">
+          <p>
+            Die Portfoliorendite ist das gewichtete Mittel. Das Portfoliorisiko ist die
+            Wurzel aus den beiden gewichteten Varianzen plus dem doppelten Produkt aus
+            den Gewichten, den Risiken und der Korrelation.
+          </p>
+          <p class="eq" aria-label="Formel Portfoliorisiko">
+            σ<sub>p</sub> = (w<sub>1</sub>²σ<sub>1</sub>² + w<sub>2</sub>²σ<sub>2</sub>² + 2 w<sub>1</sub> w<sub>2</sub> σ<sub>1</sub> σ<sub>2</sub> ρ)<sup>1/2</sup>
+          </p>
+          <p>
+            Das MVP nutzt nur σ und ρ, nicht μ. Feste Lehrwerte: σ<sub>MVP</sub> 9,60 %,
+            μ<sub>MVP</sub> 6,80 %.
+          </p>
+          <p>Das Modell liefert keine Prognose.</p>
+        </div>
+      </section>
+
+      <section class="card hidden" id="kipp-card" aria-labelledby="kipp-title">
+        <h2 id="kipp-title">Kipp-Demo</h2>
+        <p>
+          Zwei Fonds. Der Optimierer sucht das Tangency-Portfolio, also die größte
+          Sharpe-Ratio. Fonds X: Rendite zuerst 8,00 %, dann 7,00 %, Risiko 16,00 %.
+          Fonds Y: Rendite 9,00 %, Risiko 20,00 %. Korrelation 0,80. Geldmarkt r<sub>f</sub> 2,00 %.
+        </p>
+        <p>
+          Ein Prognosepunkt – innerhalb jedes Schätzfehlers – ändert das Gewicht von X.
+        </p>
+        <div class="kipp-box" id="kipp-box">
+          <p class="figure" id="kipp-figure">70,00 %</p>
+          <p id="kipp-live"></p>
+        </div>
+        <div class="seg">
+          <button type="button" class="secondary" id="kipp-hi">μ<sub>X</sub> = 8,00 %</button>
+          <button type="button" class="secondary" id="kipp-lo">μ<sub>X</sub> = 7,00 %</button>
+        </div>
+        <div class="sliders">
+          <div class="slider-row">
+            <label for="slider-mux">μ<sub>X</sub> von 8,00 % nach 7,00 % <span id="val-mux">8,00 %</span></label>
+            <input id="slider-mux" type="range" min="0" max="100" step="1" value="0" />
+          </div>
+        </div>
+        <p>
+          An den Endpunkten der Lehrrechnung kippt w<sub>X</sub> von 70,00 % auf 29,00 %.
+        </p>
+        <p>
+          Michaud nennt den Optimierer einen Error Maximizer: Der Optimierer verstärkt
+          das Rauschen in den Eingaben.
+        </p>
+        <div class="lehr">
+          <p>
+            Black-Litterman ist die bessere Verpackung derselben Zutaten – nicht mehr.
+            In diesem Labor gibt es dafür keinen eigenen Reiter.
+          </p>
+        </div>
+      </section>
+
+      <section class="card hidden" id="crisis-card" aria-labelledby="crisis-title">
+        <h2 id="crisis-title">Krise</h2>
+        <p>
+          60 % Aktien-ETF (μ 7,00 %, σ 18,00 %) und 40 % Renten-ETF (μ 3,00 %, σ 6,00 %).
+          Schieben Sie die Korrelation von 0,00 bis 1,00.
+        </p>
+        <div class="crisis-box">
+          <p class="figure" id="crisis-figure">11,50 %</p>
+          <p id="crisis-live"></p>
+        </div>
+        <div class="sliders">
+          <div class="slider-row">
+            <label for="slider-rho">Korrelation ρ <span id="val-rho">0,20</span></label>
+            <input id="slider-rho" type="range" min="0" max="100" step="1" value="20" />
+          </div>
+        </div>
+        <p>
+          In der Lehrrechnung: ρ = 0,20 → σ<sub>p</sub> ≈ 11,50 %, μ<sub>p</sub> 5,40 %.
+          ρ = 0,80 → σ<sub>p</sub> ≈ 12,80 %. Der Sprung beträgt +1,3 Punkte – ohne jede Umschichtung.
+        </p>
+        <p>
+          Wer Diversifikation in ruhigen Zeiten schätzt, überschätzt den Schutz im Stress.
+        </p>
+      </section>
+
+      <section class="card" aria-labelledby="merke-title">
+        <h2 id="merke-title">Merksatz</h2>
+        <p class="merksatz">„Markowitz scheitert nicht an der Mathematik, sondern an der Nahrung.“</p>
+      </section>
+
+      <section class="card" aria-labelledby="task-title">
+        <h2 id="task-title">Aufgabe</h2>
+        <div class="task">
+          <p>
+            Berechnen Sie die MVP-Gewichte für den DAX-ETF und den Gold-ETC aus den Risiken
+            und der Korrelation.
+          </p>
+          <p>
+            Die Formel in Worten: Der Anteil der ersten Anlage ist die Varianz der zweiten
+            Anlage minus dem Produkt aus beiden Risiken und der Korrelation. Dieser Zähler
+            wird geteilt durch die Summe beider Varianzen minus dem Doppelten desselben Produkts.
+          </p>
+          <p>
+            Schreiben Sie w<sub>DAX</sub>, w<sub>Gold</sub> und σ<sub>MVP</sub>. Zwei Dezimalen, deutsches Format.
+          </p>
+          <p>
+            Hat das 50/50-Buch mehr Risiko als das MVP? Ein Satz reicht.
+          </p>
+          <p>Abgabe in Moodle.</p>
+        </div>
+      </section>
+    </div>
+
+    <footer class="site-footer">
+      <div class="inner">
+        <span>Prof. Dr. Wolfgang Hößl · FAM · Einheit T05</span>
+      </div>
+    </footer>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
